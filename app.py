@@ -8,6 +8,10 @@ Public-facing layout:
 - Explore Map, Find Near University, Search & Filter, and Add Boarding
   are separated into tabs.
 
+Developer tools and Admin are hidden from normal visitors. To access
+them, visit this app with ?dev=YOUR_SECRET appended to the URL, where
+YOUR_SECRET matches DEV_ACCESS_KEY in secrets.toml.
+
 Run with:
     streamlit run app.py
 """
@@ -284,18 +288,33 @@ col3.metric(
 )
 
 
+# -----------------------------------------------------------------
+# Developer access check
+# -----------------------------------------------------------------
+# Normal visitors never see Developer tools, Admin, or raw data
+# warnings. To reach them, open this app with ?dev=YOUR_SECRET in
+# the URL, where YOUR_SECRET matches DEV_ACCESS_KEY in secrets.toml.
+is_dev = st.query_params.get("dev") == st.secrets.get("DEV_ACCESS_KEY")
+
+
 if not st.session_state.layers:
 
-    st.warning(
-        "No data is loaded yet. If you're the developer, open "
-        "**Developer tools** in the sidebar and load your files from there."
-    )
+    if is_dev:
+        st.warning(
+            "No data is loaded yet. Open **Developer tools** in the "
+            "sidebar and load your files from there."
+        )
+    else:
+        st.info(
+            "No accommodation data is currently available. "
+            "Please check back soon."
+        )
 
 
 # -----------------------------------------------------------------
-# Warnings
+# Warnings (developer-only)
 # -----------------------------------------------------------------
-if st.session_state.all_warnings:
+if is_dev and st.session_state.all_warnings:
 
     with st.expander(
         f"⚠️ Data warnings ({len(st.session_state.all_warnings)})",
@@ -1176,285 +1195,283 @@ with tab_add:
 
 
 # -----------------------------------------------------------------
-# Sidebar: Developer tools
+# Sidebar: Developer tools (hidden unless ?dev=YOUR_SECRET is in the URL)
 # -----------------------------------------------------------------
-with st.sidebar:
+if is_dev:
+    with st.sidebar:
 
-    with st.expander(
-        "🛠️ Developer tools",
-        expanded=False
-    ):
+        with st.expander(
+            "🛠️ Developer tools",
+            expanded=False
+        ):
 
-        st.caption(
-            "For loading/refreshing the underlying GIS data. "
-            "Normal visitors don't need this."
-        )
+            st.caption(
+                "For loading/refreshing the underlying GIS data. "
+                "Normal visitors don't need this."
+            )
 
-        uploaded_files = st.file_uploader(
-            "Upload 10 GIS files (5 CSV + 5 GeoJSON)",
-            type=[
-                "csv",
-                "geojson",
-                "json"
-            ],
-            accept_multiple_files=True,
-        )
+            uploaded_files = st.file_uploader(
+                "Upload 10 GIS files (5 CSV + 5 GeoJSON)",
+                type=[
+                    "csv",
+                    "geojson",
+                    "json"
+                ],
+                accept_multiple_files=True,
+            )
 
-        identified = {}
-        unidentified_files = []
+            identified = {}
+            unidentified_files = []
 
-        if uploaded_files:
+            if uploaded_files:
 
-            for f in uploaded_files:
+                for f in uploaded_files:
 
-                layer_name = (
-                    st.session_state.manual_assignments.get(
-                        f.name
+                    layer_name = (
+                        st.session_state.manual_assignments.get(
+                            f.name
+                        )
+                        or data_loader.identify_layer(
+                            f.name
+                        )
                     )
-                    or data_loader.identify_layer(
-                        f.name
+
+                    if layer_name:
+
+                        identified[f.name] = layer_name
+
+                        st.markdown(
+                            f"✅ `{f.name}` → **{layer_name}**"
+                        )
+
+                    else:
+
+                        unidentified_files.append(f)
+
+                        st.markdown(
+                            f"⚠️ `{f.name}` → not recognized"
+                        )
+
+                if unidentified_files:
+
+                    for f in unidentified_files:
+
+                        options = [
+                            "-- Select a layer --"
+                        ] + list(
+                            data_loader.LAYER_CONFIG.keys()
+                        )
+
+                        choice = st.selectbox(
+                            f"Assign layer for {f.name}",
+                            options,
+                            key=f"manual_assign_{f.name}"
+                        )
+
+                        if choice != "-- Select a layer --":
+
+                            st.session_state.manual_assignments[
+                                f.name
+                            ] = choice
+
+                            identified[f.name] = choice
+
+                if st.button(
+                    "Load uploaded files",
+                    type="primary"
+                ):
+
+                    for f in uploaded_files:
+                        f.seek(0)
+
+                    sources = [
+                        (f.name, f)
+                        for f in uploaded_files
+                    ]
+
+                    load_files_from_paths(
+                        sources
                     )
-                )
 
-                if layer_name:
+                    st.success(
+                        "Loaded. Switch to the Explore Map tab to see it."
+                    )
 
-                    identified[f.name] = layer_name
+            st.markdown("---")
 
-                    st.markdown(
-                        f"✅ `{f.name}` → **{layer_name}**"
+            if st.button(
+                "Reload from data/development folder"
+            ):
+
+                if os.path.isdir(DEV_FOLDER):
+
+                    local_paths = [
+                        os.path.join(
+                            DEV_FOLDER,
+                            fn
+                        )
+                        for fn in os.listdir(
+                            DEV_FOLDER
+                        )
+                        if fn.lower().endswith(
+                            (
+                                ".csv",
+                                ".geojson",
+                                ".json"
+                            )
+                        )
+                    ]
+
+                    sources = [
+                        (
+                            os.path.basename(p),
+                            open(p, "rb")
+                        )
+                        for p in local_paths
+                    ]
+
+                    load_files_from_paths(
+                        sources
+                    )
+
+                    for _, f in sources:
+                        f.close()
+
+                    st.success(
+                        "Reloaded from data/development."
                     )
 
                 else:
 
-                    unidentified_files.append(f)
-
-                    st.markdown(
-                        f"⚠️ `{f.name}` → not recognized"
+                    st.warning(
+                        "data/development folder not found."
                     )
 
-            if unidentified_files:
+            if st.session_state.layer_info:
 
-                for f in unidentified_files:
+                st.markdown("---")
 
-                    options = [
-                        "-- Select a layer --"
-                    ] + list(
-                        data_loader.LAYER_CONFIG.keys()
-                    )
-
-                    choice = st.selectbox(
-                        f"Assign layer for {f.name}",
-                        options,
-                        key=f"manual_assign_{f.name}"
-                    )
-
-                    if choice != "-- Select a layer --":
-
-                        st.session_state.manual_assignments[
-                            f.name
-                        ] = choice
-
-                        identified[f.name] = choice
-
-            if st.button(
-                "Load uploaded files",
-                type="primary"
-            ):
-
-                for f in uploaded_files:
-                    f.seek(0)
-
-                sources = [
-                    (f.name, f)
-                    for f in uploaded_files
-                ]
-
-                load_files_from_paths(
-                    sources
+                st.caption(
+                    "Loaded layers:"
                 )
 
-                st.success(
-                    "Loaded. Switch to the Explore Map tab to see it."
-                )
+                for name, info in (
+                    st.session_state.layer_info.items()
+                ):
 
-        st.markdown("---")
+                    icon = (
+                        "✅"
+                        if info["status"] == "Loaded"
+                        else "❌"
+                    )
 
-        if st.button(
-            "Reload from data/development folder"
+                    st.caption(
+                        f"{icon} {name}: "
+                        f"{info['features']} features"
+                    )
+
+
+# -----------------------------------------------------------------
+# Sidebar: Admin (hidden unless ?dev=YOUR_SECRET is in the URL)
+# -----------------------------------------------------------------
+if is_dev:
+    with st.sidebar:
+
+        with st.expander(
+            "🔐 Admin",
+            expanded=False
         ):
 
-            if os.path.isdir(DEV_FOLDER):
-
-                local_paths = [
-                    os.path.join(
-                        DEV_FOLDER,
-                        fn
-                    )
-                    for fn in os.listdir(
-                        DEV_FOLDER
-                    )
-                    if fn.lower().endswith(
-                        (
-                            ".csv",
-                            ".geojson",
-                            ".json"
-                        )
-                    )
-                ]
-
-                sources = [
-                    (
-                        os.path.basename(p),
-                        open(p, "rb")
-                    )
-                    for p in local_paths
-                ]
-
-                load_files_from_paths(
-                    sources
-                )
-
-                for _, f in sources:
-                    f.close()
-
-                st.success(
-                    "Reloaded from data/development."
-                )
-
-            else:
-
-                st.warning(
-                    "data/development folder not found."
-                )
-
-        if st.session_state.layer_info:
-
-            st.markdown("---")
-
-            st.caption(
-                "Loaded layers:"
+            pw = st.text_input(
+                "Admin password",
+                type="password",
+                key="admin_pw"
             )
 
-            for name, info in (
-                st.session_state.layer_info.items()
-            ):
+            if pw == st.secrets.get("ADMIN_PASSWORD"):
 
-                icon = (
-                    "✅"
-                    if info["status"] == "Loaded"
-                    else "❌"
+                from modules.admin import (
+                    get_submissions,
+                    approve_submission,
+                    reject_submission,
+                    remove_submission
+                )
+
+                pending = get_submissions(
+                    status="PENDING"
                 )
 
                 st.caption(
-                    f"{icon} {name}: "
-                    f"{info['features']} features"
+                    f"{len(pending)} pending submission(s)"
                 )
 
+                for sub in pending:
 
-# -----------------------------------------------------------------
-# Sidebar: Admin
-# -----------------------------------------------------------------
-with st.sidebar:
-
-    with st.expander(
-        "🔐 Admin",
-        expanded=False
-    ):
-
-        pw = st.text_input(
-            "Admin password",
-            type="password",
-            key="admin_pw"
-        )
-
-        if pw == st.secrets.get("ADMIN_PASSWORD"):
-
-            from modules.admin import (
-                get_submissions,
-                approve_submission,
-                reject_submission,
-                remove_submission
-            )
-
-            pending = get_submissions(
-                status="PENDING"
-            )
-
-            st.caption(
-                f"{len(pending)} pending submission(s)"
-            )
-
-            for sub in pending:
-
-                with st.container(
-                    border=True
-                ):
-
-                    st.write(
-                        f"**{sub.get('title')}**"
-                    )
-
-                    st.caption(
-                        f"{sub.get('type')} — "
-                        f"Rs. {sub.get('rent_lkr')} — "
-                        f"{sub.get('gender')} — "
-                        f"{sub.get('availability')}"
-                    )
-
-                    st.caption(
-                        f"Location: "
-                        f"{sub.get('latitude'):.5f}, "
-                        f"{sub.get('longitude'):.5f}"
-                    )
-
-                    c1, c2 = st.columns(2)
-
-                    if c1.button(
-                        "Approve",
-                        key=f"approve_{sub['id']}"
+                    with st.container(
+                        border=True
                     ):
 
-                        approve_submission(
-                            sub["id"]
+                        st.write(
+                            f"**{sub.get('title')}**"
                         )
 
-                        st.rerun()
-
-                    if c2.button(
-                        "Reject",
-                        key=f"reject_{sub['id']}"
-                    ):
-
-                        reject_submission(
-                            sub["id"]
+                        st.caption(
+                            f"{sub.get('type')} — "
+                            f"Rs. {sub.get('rent_lkr')} — "
+                            f"{sub.get('gender')} — "
+                            f"{sub.get('availability')}"
                         )
 
-                        st.rerun()
+                        st.caption(
+                            f"Location: "
+                            f"{sub.get('latitude'):.5f}, "
+                            f"{sub.get('longitude'):.5f}"
+                        )
 
-            st.divider()
-            from modules.reports import get_reports, set_report_status
-            open_reports = get_reports(status="OPEN")
-            st.caption(f"{len(open_reports)} open report(s)")
-            for rep in open_reports:
-                with st.container(border=True):
-                    st.write(f"**{rep.get('listing_name')}**")
-                    st.caption(f"{rep.get('reason')} | {rep.get('source_layer')}")
-                    if rep.get("details"):
-                        st.write(rep["details"])
-                    r1, r2 = st.columns(2)
-                    if r1.button("Reviewed", key=f"rev_{rep['id']}"):
-                        set_report_status(rep["id"], "REVIEWED")
-                        st.rerun()
-                    if r2.button("Dismiss", key=f"dis_{rep['id']}"):
-                        set_report_status(rep["id"], "DISMISSED")
-                        st.rerun()
+                        c1, c2 = st.columns(2)
 
-        elif pw:
+                        if c1.button(
+                            "Approve",
+                            key=f"approve_{sub['id']}"
+                        ):
 
-            st.error(
-                "Incorrect password."
-            )
+                            approve_submission(
+                                sub["id"]
+                            )
 
+                            st.rerun()
 
+                        if c2.button(
+                            "Reject",
+                            key=f"reject_{sub['id']}"
+                        ):
 
+                            reject_submission(
+                                sub["id"]
+                            )
 
+                            st.rerun()
+
+                st.divider()
+                from modules.reports import get_reports, set_report_status
+                open_reports = get_reports(status="OPEN")
+                st.caption(f"{len(open_reports)} open report(s)")
+                for rep in open_reports:
+                    with st.container(border=True):
+                        st.write(f"**{rep.get('listing_name')}**")
+                        st.caption(f"{rep.get('reason')} | {rep.get('source_layer')}")
+                        if rep.get("details"):
+                            st.write(rep["details"])
+                        r1, r2 = st.columns(2)
+                        if r1.button("Reviewed", key=f"rev_{rep['id']}"):
+                            set_report_status(rep["id"], "REVIEWED")
+                            st.rerun()
+                        if r2.button("Dismiss", key=f"dis_{rep['id']}"):
+                            set_report_status(rep["id"], "DISMISSED")
+                            st.rerun()
+
+            elif pw:
+
+                st.error(
+                    "Incorrect password."
+                )
