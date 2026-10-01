@@ -1,0 +1,28 @@
+﻿Review_ID,Longitude,Latitude,What type of accommodation you live in?,What is your monthly rent range?,How many people share your room/house?,How do you rate the physiscal condition of your boarding place?,How would you rate cleanliness and sanitation?,How is ventilation and natural lighting?,How safe do you feel in your boarding place?,Have you experienced any issues?,How far is your boarding place from your university?,How far is your boarding place from the nearest bus stop or railway station?,How useful do you think an interactive web mapping platform would be for helping students to find safe and suitable boarding place?
+1,79.900554,6.800649,Room in a house ,"Below 10,000 LKR",2–3 people,Moderate,Clean,Good,Moderately safe,No issues experienced,1km,1km,Very useful
+2,79.8983302,6.8609719,Annex,"20,000 – 30,000 LKR",2–3 people,Moderate,Clean,Good,Safe,No issues experienced,3km,500m,Very useful
+3,79.8507857,6.9152522,Room in a house,"Below 10,000 LKR",2–3 people,Good,Very clean,Good,Safe,No issues experienced,50M,30M,Very useful
+4,79.8995695,6.795379824,Annex,"Below 10,000 LKR",2–3 people,Moderate,Average,Good,Moderately safe,Noise pollution,50m,50m,Very useful
+5,79.902568,6.7947342,Shared house,"Below 10,000 LKR",More than 5 people,Moderate,Poor,Poor,Safe,No issues experienced,100m,1km,Very useful
+6,79.8569252,6.9157113,Shared house,"Below 10,000 LKR",More than 5 people,Good,Average,Poor,Safe,Noise pollution,80m,200m,Very useful
+7,79.8975781,6.798926801,Room in a house,"Below 10,000 LKR",2–3 people,Moderate,Clean,Good,Safe,No issues experienced,1km,4 km,Very useful
+8,79.8876709,6.9072055,Room in a house,"10,000 – 20,000 LKR",4–5 people,Moderate,Clean,Poor,Moderately safe,"Flooding/water logging, Theft/security issues, Harassment or disturbance",400m,100m,Very useful
+9,79.90346318,6.79166813,Room in a house,"Below 10,000 LKR",2–3 people,Moderate,Average,Poor,Moderately safe,No issues experienced,0.9km,10-15m,Very useful
+10,79.90136419,6.793984315,Apartment,"Below 10,000 LKR",4–5 people,Good,Clean,Moderate,Safe,Noise pollution,500 m,200m - 250m,Very useful
+11,79.9161057,6.9777758,Room in a house,"Below 10,000 LKR",2–3 people,Good,Clean,Moderate,Safe,No issues experienced,50m,about 100m to the bus stop,Very useful
+12,79.89588481,6.793497822,Apartment,"Below 10,000 LKR",2–3 people,Moderate,Average,Moderate,Safe,No issues experienced,900m,600m,Useful
+13,79.90063484,6.793364004,Shared house,"Below 10,000 LKR",2–3 people,Moderate,Average,Poor,Unsafe,Theft/security issues,200m,200m,Useful
+14,79.90731781,6.964345413,Annex,"10,000 – 20,000 LKR",More than 5 people,Good,Very clean,Good,Safe,No issues experienced,1.5 km,200m,Slightly useful
+15,79.91004373,6.851653979,Room in a house,"10,000 – 20,000 LKR",1 person,Moderate,Average,Moderate,Safe,No issues experienced,500m,1km,Very useful
+16,79.90057818,6.79349125,Annex,"Below 10,000 LKR",2–3 people,Moderate,Average,Poor,Moderately safe,Noise pollution,50m,50m,Useful
+17,79.8987506,6.7907706,Room in a house,"10,000 – 20,000 LKR",4–5 people,Moderate,Poor,Moderate,Safe,No issues experienced,6,700m,Slightly useful
+18,79.9008839,6.792978704,Annex,"Below 10,000 LKR",2–3 people,Poor,Average,Poor,Safe,Theft/security issues,200m,100m,Useful
+19,79.8984683,6.7929898,Room in a house,"Below 10,000 LKR",4–5 people,Moderate,Very clean,Moderate,Safe,No issues experienced,200m,190m,Very useful
+20,79.9028116,6.8506726,Shared house,"10,000 – 20,000 LKR",1 person,Moderate,Average,Poor,Moderately safe,Theft/security issues,750m,Around 400m,Very useful
+21,79.90642,6.7965,Room in a house,"Below 10,000 LKR",4–5 people,Good,Very clean,Good,Moderately safe,Harassment or disturbance,800m,150m,Very useful
+22,79.9232557,6.8564656,Room in a house,"10,000 – 20,000 LKR",2–3 people,Poor,Average,Poor,Moderately safe,No issues experienced,About 15 min walking distance.,About 20 minutes,Very useful
+23,79.89744608,6.80039978,Annex,"Below 10,000 LKR",2–3 people,Good,Clean,Moderate,Safe,No issues experienced,800 m,600m,Moderately useful
+24,79.90255636,6.794209743,Room in a house,"Below 10,000 LKR",2–3 people,Moderate,Clean,Good,Safe,Noise pollution,300m,300m,Very useful
+25,79.90198345,6.793367836,Room in a house,"Below 10,000 LKR",2–3 people,Moderate,Clean,Poor,Safe,No issues experienced,650m,650m,Very useful
+26,79.8670287,6.9264898,Room in a house,"Below 10,000 LKR",4–5 people,Moderate,Poor,Poor,Moderately safe,"Flooding/water logging, Theft/security issues, Harassment or disturbance, Noise pollution",0.5km,0.5km,Very useful
+,,,,,4–5 people,,,,,,,,
