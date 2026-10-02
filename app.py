@@ -261,7 +261,7 @@ loaded_count = sum(
  
 st.markdown(
 """
-<div style="
+<div class="ss-hero" style="
     background: linear-gradient(135deg, #122118 0%, #1b3a2b 55%, #2f5f45 100%);
     padding: 40px 36px;
     border-radius: 20px;
