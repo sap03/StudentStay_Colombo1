@@ -260,27 +260,28 @@ loaded_count = sum(
  
  
 st.markdown(
-"""
-<div class="ss-hero" style="
-    background: linear-gradient(135deg, #122118 0%, #1b3a2b 55%, #2f5f45 100%);
-    padding: 40px 36px;
-    border-radius: 20px;
-    color: white;
-    margin-bottom: 20px;
-    box-shadow: 0 8px 24px rgba(18, 33, 24, 0.25);
-">
-    <div style="font-size: 0.85rem; letter-spacing: 1px; color: #e0a63d; font-weight: 600; margin-bottom: 8px;">
-        COLOMBO DISTRICT &middot; LIVE GIS DATA
+    """
+    <div class="ss-hero">
+
+        <div class="ss-hero-label">
+            COLOMBO · STUDENT LIVING · LIVE GIS
+        </div>
+
+        <div class="ss-hero-title">
+            🏠 StudentStay Colombo
+        </div>
+
+        <div class="ss-hero-tagline">
+            Find your stay. Explore what matters around you.
+        </div>
+
+        <div class="ss-hero-support">
+            Student accommodation, nearby facilities and location insights — all in one place.
+        </div>
+
     </div>
-    <div style="font-size: 2.1rem; font-weight: 700; line-height: 1.15;">
-        🏠 StudentStay Colombo
-    </div>
-    <div style="opacity: 0.85; margin-top: 8px; font-size: 1.05rem;">
-        Find a place to stay. Find what you need around it.
-    </div>
-</div>
-""",
-unsafe_allow_html=True,
+    """,
+    unsafe_allow_html=True,
 )
  
  
